@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'pawa'
+
+pawa = Pawa::Pawa.new  
+pawa.hello
