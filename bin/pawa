@@ -3,4 +3,4 @@
 require 'pawa'
 
 pawa = Pawa::Pawa.new  
-pawa.hello
+pawa.run!

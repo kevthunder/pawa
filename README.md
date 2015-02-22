@@ -1,6 +1,8 @@
 # Pawa
 
-TODO: Write a gem description
+PAWA : Porting Algorithms With Annotations. 
+
+PAWA is meant to ease maintaining a library that must be written in two different languages. PAWA will transform files of language A with replace operations and line substitutions you put in your files in the form of comments. Then it will send them to your favorite diff viewer to compare with your existing files of language B. This is essentially telling you where you must make modifications in language B to port the modifications you did in language A.
 
 ## Installation
 
