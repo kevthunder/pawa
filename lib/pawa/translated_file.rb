@@ -1,3 +1,6 @@
+require 'pawa/target_file'
+require 'byebug'
+
 module Pawa
   class TranslatedFile
     def initialize(filename,folder_map)
@@ -27,13 +30,13 @@ module Pawa
     end
     
     def translate
-      target_files.each |f|
+      target_files.each do |f|
         f.translate
       end
     end
     
     def deleteTmp
-      target_files.each |f|
+      target_files.each do |f|
         f.deleteTmp
       end
     end

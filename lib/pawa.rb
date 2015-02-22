@@ -49,7 +49,7 @@ module Pawa
       end
       
       if options[:watch]
-        Watcher.new(conf).start do |modified, added, removed|
+        Watcher.new(conf,options).start do |modified, added, removed|
           (modified + added).each do |file|
             file.translate()
           end

@@ -7,7 +7,9 @@ module Pawa
       @option = option
       pp option
       @folder_maps = option['folder'].map{ |opt| FolderMap.new(self,opt)} if option['folder']
-      @syntaxes = Hash[ption['syntax'].map{|name,opt| [name.to_sym,Syntax.new(name,self,opt)] } ] if option['syntax']
+      @syntaxes = Hash[option['syntax'].map do |name,opt| 
+        [name.to_sym,Syntax.new(name,self,opt)] 
+      end ] if option['syntax']
     end
     attr_accessor :option
     attr_reader :folder_maps, :syntaxes

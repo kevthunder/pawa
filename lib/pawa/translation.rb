@@ -1,10 +1,11 @@
 module Pawa
   class Syntax
-    def initialize(syntax,options)
-      @syntax = syntax
+    def initialize(source_syntax,target_syntax,options)
+      @source_syntax = source_syntax
+      @target_syntax = target_syntax
       @options = options
     end
-    attr_accessor :syntax, :options
+    attr_accessor :source_syntax, :target_syntax, :options
     
   end
 end

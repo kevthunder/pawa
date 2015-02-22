@@ -1,3 +1,6 @@
+require 'pawa/target_folder'
+require 'pawa/translated_file'
+
 
 module Pawa
   class FolderMap
@@ -9,8 +12,8 @@ module Pawa
     end
     def target_folders
       @target_folders ||= target.inject([]) do |syntaxes,(sname,opt)|
-        s = config.syntaxes.find{ |s| s.name == sname }
-        syntaxes.push(TargetFolders.new(opt,self,s)) if s
+        s = config.syntaxes.values.find{ |s| s.name == sname }
+        syntaxes.push(TargetFolder.new(opt,self,s)) if s
       end
     end
     def syntaxes
@@ -27,17 +30,23 @@ module Pawa
       @source_files ||= source_files_with(source)
     end
     def get_source_file(path)
-      if @source_files or found = @source_files.find{ |f| f.filename == path}
+      if Pathname.new(path).absolute?
+        path = Pathname.new(path).relative_path_from(Pathname.new(Dir.pwd)).to_path
+      end
+      if @source_files and found = @source_files.find{ |f| f.filename == path}
         found
       else
-        TranslatedFile.new(file,self)
+        TranslatedFile.new(path,self)
       end
     end
     def remove_source_from(file)
-      file.tap{ |f| f.slice!(source) }
+      tmp = file.clone
+      tmp.slice!(source)
+      tmp
     end
     def source_files_with(source)
-      Dir.entries(source).inject([]) do |list,file|
+      Dir.entries(source).reject{|file| file == "." || file == ".."}.inject([]) do |list,file|
+        file = File.join(source,file)
         if File.directory?(file)
           if recur
             list += source_files_with(file)
@@ -45,6 +54,7 @@ module Pawa
         else
           list.push(get_source_file(file))
         end
+        list
       end
     end
   end

@@ -1,3 +1,6 @@
+require 'fileutils'
+require 'pawa/translator'
+
 module Pawa
   class TargetFile
     def initialize(translated_file,syntax)
@@ -28,11 +31,22 @@ module Pawa
     end
     
     def rel_filename
-      @rel_filename ||= File.join(File.dirname(translated_file.rel_filename)), File.basename(translated_file.filename,'.*') + '.' + syntax.ext.first)
+      @rel_filename ||= File.join(File.dirname(translated_file.rel_filename), File.basename(translated_file.filename,'.*') + '.' + syntax.ext.first)
+    end
+    
+    def create_tmp_folder
+      unless File.exist?(File.dirname(tmp_filename))
+        FileUtils::mkdir_p File.dirname(tmp_filename)
+      end
     end
     
     def translate
-      File.write(tmp_filename, translated_file.content)
+      create_tmp_folder
+      File.write(tmp_filename, translated_content)
+    end
+    
+    def translated_content
+      Translator.new(self).result
     end
     
     def deleteTmp
