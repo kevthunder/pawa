@@ -12,6 +12,9 @@ module Pawa
     def translation
       @translation ||= source_file.syntax.get_translation_for(target_file.syntax)
     end
+    def operations
+      @operations ||= translation.operations.clone
+    end
     def reg_next_operation(exclude=[])
       reg_strs = []
       operations.each_with_index do |op, index|
@@ -42,6 +45,9 @@ module Pawa
       end
     end
     def result
+      # while op = next_operation
+        # op.exec
+      # end
       edited_content
     end
   end
