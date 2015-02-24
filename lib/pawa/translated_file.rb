@@ -15,6 +15,14 @@ module Pawa
       self
     end
     
+    def ext 
+      File.extname(filename)[1..-1]
+    end
+    
+    def syntax
+      @syntax ||= folder_map.config.get_syntax_for_ext(ext)
+    end 
+    
     def target_files
       @target_files ||= folder_map.syntaxes.map do |syntax|
         TargetFile.new(self,syntax)

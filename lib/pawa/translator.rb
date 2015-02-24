@@ -9,6 +9,9 @@ module Pawa
     def source_file
       target_file.translated_file
     end
+    def config
+      target_file.translated_file.folder_map.config
+    end
     def translation
       @translation ||= source_file.syntax.get_translation_for(target_file.syntax)
     end
@@ -45,6 +48,7 @@ module Pawa
       end
     end
     def result
+      byebug
       # while op = next_operation
         # op.exec
       # end

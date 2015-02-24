@@ -12,7 +12,7 @@ module Pawa
     end
     def target_folders
       @target_folders ||= target.inject([]) do |syntaxes,(sname,opt)|
-        s = config.syntaxes.values.find{ |s| s.name == sname }
+        s = config.syntaxes.find{ |s| s.name == sname }
         syntaxes.push(TargetFolder.new(opt,self,s)) if s
       end
     end

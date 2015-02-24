@@ -6,7 +6,7 @@ module Pawa
       @name = name
       @config = config
       @comment = options['comment'] || '#'
-      @ext = options['ext'].respond_to?('each') ? options['ext'] : [options['ext'] || [name]]
+      @ext = options['ext'].respond_to?('each') ? options['ext'] : [options['ext'] || name]
       @translations_options = options['translations']
       @translations = []
     end

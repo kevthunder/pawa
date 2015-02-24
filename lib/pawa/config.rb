@@ -6,13 +6,25 @@ module Pawa
     def initialize(option)
       @option = option
       pp option
-      @folder_maps = option['folder'].map{ |opt| FolderMap.new(self,opt)} if option['folder']
-      @syntaxes = Hash[option['syntax'].map do |name,opt| 
-        [name.to_sym,Syntax.new(name,self,opt)] 
-      end ] if option['syntax']
     end
     attr_accessor :option
-    attr_reader :folder_maps, :syntaxes
+    
+    def folder_maps
+      @folder_maps ||= if option['folder'] 
+        option['folder'].map{ |opt| FolderMap.new(self,opt)} 
+      else
+        []
+      end
+    end
+    
+    def syntaxes
+      @syntaxes ||= if option['syntax']
+        option['syntax'].map { |name,opt| Syntax.new(name,self,opt) } 
+      else
+        []
+      end
+    end
+    
     def get_syntax_for_ext(ext)
       syntaxes.find{|s| s.ext.include?(ext)}
     end
