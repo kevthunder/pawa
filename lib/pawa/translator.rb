@@ -22,10 +22,10 @@ module Pawa
       reg_strs = []
       operations.each_with_index do |op, index|
         if op.findable? and not exclude.include?(index)
-          reg_str.push "(?<o#{index}>#{op.start_reg})"
+          reg_strs.push "(?<o#{index}>#{op.start_reg.source})"
         end
       end
-      reg_str.push '(?<eol>\n)'
+      reg_strs.push '(?<eol>\n)'
       reg_strs.join('|')
     end
     def edited_content
@@ -49,6 +49,8 @@ module Pawa
     end
     def result
       byebug
+      p reg_next_operation
+      p OptParser.new('/test/ foo:bar tttt/ttt 1,2,3 "foo:bar \\""').params
       # while op = next_operation
         # op.exec
       # end
