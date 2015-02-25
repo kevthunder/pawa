@@ -19,6 +19,7 @@ module Pawa
       @operations ||= translation.operations.clone
     end
     def reg_next_operation(exclude=[])
+      return @reg_next_operation if @reg_next_operation and exclude.empty?
       reg_strs = []
       operations.each_with_index do |op, index|
         if op.findable? and not exclude.include?(index)
@@ -26,7 +27,9 @@ module Pawa
         end
       end
       reg_strs.push '(?<eol>\n)'
-      reg_strs.join('|')
+      Regexp.new(reg_strs.join('|')).tap do |reg|
+        @reg_next_operation = reg if exclude.empty?
+      end
     end
     def edited_content
       @edited_content ||= source_file.content
@@ -36,24 +39,29 @@ module Pawa
         match = reg_next_operation.match(edited_content, pointer)
         unless match.nil?
           matched_names = match.names.reject{ |name| match[name].nil? }
-          pointer = match.start(0)+1
-          name = matched_names.first
-          if name == 'eol'
-          else
-            name.slice|(0)
-            op = operations[name.to_i]
-            op.instance(self,match) unless op.nil?
+          self.pointer = match.begin(0)+1
+          op = nil
+          matched_names.find do |name|
+            op = nil
+            if name == 'eol'
+              op = next_operation
+              true
+            else
+              oper = operations[name[1..-1].to_i]
+              unless oper.nil?
+                op = oper.instance(self,match,name)
+                op.valid?
+              end
+            end
           end
+          op
         end
       end
     end
     def result
-      byebug
-      p reg_next_operation
-      p OptParser.new('/test/ foo:bar tttt/ttt 1,2,3 "foo:bar \\""').params
-      # while op = next_operation
-        # op.exec
-      # end
+      while op = next_operation
+        op.exec
+      end
       edited_content
     end
   end

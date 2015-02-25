@@ -28,24 +28,35 @@ module Pawa
       def findable?
         false
       end
-      def instance(translator,match)
-        Instance.new(self,translator,match)
+      
+      def instance_cls
+        Instance
+      end
+      def instance(*arguments)
+        instance_cls.new(self,*arguments)
       end
       
-      def Instance
-        def initialize(operation,translator,match)
+      class Instance
+        def initialize(operation,translator,match,group)
           @operation = operation
           @translator = translator
           @match = match
+          @group = group
         end
-        attr_accessor :operation, :translator, :match
+        attr_accessor :operation, :translator, :match, :group
         def method_missing(method_name, *arguments, &block)
           if @operation.respond_to?(method_name)
-            res = @array.send(method_name, self, *arguments, &block)
+            res = @operation.send(method_name, self, *arguments, &block)
           end
         end
         def respond_to_missing?(method_name, include_private = false)
           @operation.respond_to?(method_name) || super
+        end
+        def my_match
+          match[group]
+        end
+        def alter_remaining_text
+          translator.edited_content[match.begin(0)..-1]= yield(translator.edited_content[match.begin(0)..-1])
         end
       end
     end

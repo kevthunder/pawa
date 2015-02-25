@@ -13,7 +13,7 @@ module Pawa
     attr_accessor :name, :config, :comment, :ext, :translations_options
     
     def get_translation_for(syntax)
-      @translations.find{ |tr| tr.syntax == syntax} || Translation.new(
+      @translations.find{ |tr| tr.target_syntax == syntax} || Translation.new(
         self, 
         syntax, 
         translations_options[syntax.name] || {}

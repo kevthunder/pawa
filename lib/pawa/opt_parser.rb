@@ -2,8 +2,9 @@ module Pawa
   class OptParser
     def initialize(str_opt)
       @str_opt = str_opt
+      @flags = []
     end
-    attr_accessor :str_opt, :pos, :context, :param, :name, :chr, :list
+    attr_accessor :str_opt, :pos, :context, :param, :name, :chr, :list, :flags
     def testSymsByContext
       {
         default: [:end_of_arg,:list_delemiter,:start_of_delimited,:any_chr],
@@ -61,10 +62,14 @@ module Pawa
     end
     
     def end_of_arg
-      if end? or chr == ' '
+      if end? or chr =~ /\s/
         unless emptyParam?
           if list.length > 0
             self.param = list + [param]
+          end
+          if name.nil? and param.is_a?(String) and flags.include?(param)
+            self.name = param
+            self.param = true
           end
           if param.respond_to?(:final)
             self.param = param.final
