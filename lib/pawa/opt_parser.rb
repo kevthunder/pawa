@@ -64,15 +64,15 @@ module Pawa
     def end_of_arg
       if end? or chr =~ /\s/
         unless emptyParam?
-          if list.length > 0
-            self.param = list + [param]
-          end
           if name.nil? and param.is_a?(String) and flags.include?(param)
             self.name = param
             self.param = true
           end
           if param.respond_to?(:final)
             self.param = param.final
+          end
+          if list.length > 0
+            self.param = list + [param]
           end
           if name.nil?
             @params.push(param)

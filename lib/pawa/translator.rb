@@ -39,6 +39,7 @@ module Pawa
         match = reg_next_operation.match(edited_content, pointer)
         unless match.nil?
           matched_names = match.names.reject{ |name| match[name].nil? }
+          
           self.pointer = match.begin(0)+1
           op = nil
           matched_names.find do |name|
@@ -53,6 +54,9 @@ module Pawa
                 op.valid?
               end
             end
+          end
+          if op and op.reparse?
+            self.pointer = op.match.begin(0)
           end
           op
         end

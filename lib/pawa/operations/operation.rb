@@ -22,8 +22,20 @@ module Pawa
           h
         end
       end
+      def param(key)
+        return namedParams[key.to_s] if namedParams.has_key?(key.to_s)
+        return listedParams[key] if key.to_s.to_i.to_s == key.to_s and key.to_i < listedParams.length
+      end
+      def multi_param(key)
+        params.select{ |p| p.is_a?(OptParser::NamedParam) && p.name == key.to_s }.map{ |p| p.val }
+      end
+      def reparse?(instance = nil)
+        param(:reparse)
+      end
       def parser
-        OptParser.new(str_opt)
+        OptParser.new(str_opt).tap do |parser|
+          parser.flags.push 'reparse'
+        end
       end
       def findable?
         false
@@ -42,6 +54,9 @@ module Pawa
           @translator = translator
           @match = match
           @group = group
+          init
+        end
+        def init
         end
         attr_accessor :operation, :translator, :match, :group
         def method_missing(method_name, *arguments, &block)

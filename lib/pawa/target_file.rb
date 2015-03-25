@@ -43,6 +43,7 @@ module Pawa
     def translate
       create_tmp_folder
       File.write(tmp_filename, translated_content)
+      p "writed #{tmp_filename}"
     end
     
     def translated_content

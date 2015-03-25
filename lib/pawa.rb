@@ -36,9 +36,9 @@ module Pawa
       end
     end
     def run!
-      p parseOpt
-      p Dir.pwd
-      p ARGV
+      # p parseOpt
+      # p Dir.pwd
+      # p ARGV
       hello
       
       conf = loadConfig('.pawa')

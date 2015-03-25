@@ -5,7 +5,7 @@ module Pawa
   class Config
     def initialize(option)
       @option = option
-      pp option
+      # pp option
     end
     attr_accessor :option
     
