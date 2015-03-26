@@ -62,7 +62,39 @@ module Pawa
         end
       end
     end
+    def match_to_eol(pos)
+      edited_content.match(/(.*)\r?\n/,pos)
+    end
+    def cut_to_eol(pos)
+      if m = edited_content.sub(/\n/,pos)
+        edited_content.slice!(pos.end(0)...-1)
+      end
+    end
+    def match_pawa_comment(pos)
+      rcmt = Regexp.escape(source_file.syntax.comment)
+      edited_content.match(/(.*)(#{rcmt}\s+)\[pawa\s*(?<lang>[^\]]*)\](?<op>.*)$/,pos)
+    end
+    def match_pawa_continue(last_match,pos)
+      prefix = Regexp.escape(last_match[2])
+      edited_content.match(/\s{#{last_match[1].length}}#{prefix}\s+(?<op>.*)$/,pos)
+    end
+    def parse_header_operations
+      while m = match_pawa_comment(pointer)
+        lang_ok = (!m[:lang] or m[:lang] == source_file.syntax.name)
+        if lang_ok and m[:op]
+          operations.push(Operations::Operation.new_from_string(m[:op]))
+        end
+        cut_to_eol
+        while mc = match_pawa_continue(m,pointer)
+          if lang_ok and mc[:op]
+            operations.push(Operations::Operation.new_from_string(mc[:op]))
+          end
+          cut_to_eol
+        end
+      end
+    end
     def result
+      parse_header_operations
       while op = next_operation
         op.exec
       end

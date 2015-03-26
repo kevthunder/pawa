@@ -2,6 +2,7 @@ require 'pawa/opt_parser'
 
 module Pawa
   module Operations
+    
     class Operation
       def initialize(str_opt)
         @str_opt = str_opt
@@ -46,6 +47,16 @@ module Pawa
       end
       def instance(*arguments)
         instance_cls.new(self,*arguments)
+      end
+      
+      def self.get_op_class_from_key(key)
+        classname = key.split("_").each {|s| s.capitalize! }.join("")+'Operation'
+        Pawa::Operations.const_get(classname) if Pawa::Operations.const_defined?(classname)
+      end
+      
+      def self.new_from_string(str)
+        name, args = str.split(' ',2)
+        get_op_class_from_key(name).new(args)
       end
       
       class Instance
