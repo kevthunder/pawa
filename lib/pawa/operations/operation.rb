@@ -51,7 +51,7 @@ module Pawa
       
       def self.get_op_class_from_key(key)
         classname = key.split("_").each {|s| s.capitalize! }.join("")+'Operation'
-        Pawa::Operations.const_get(classname) if Pawa::Operations.const_defined?(classname)
+        Operations.const_get(classname) if Operations.const_defined?(classname)
       end
       
       def self.new_from_string(str)

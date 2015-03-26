@@ -66,32 +66,35 @@ module Pawa
       edited_content.match(/(.*)\r?\n/,pos)
     end
     def cut_to_eol(pos)
-      if m = edited_content.sub(/\n/,pos)
-        edited_content.slice!(pos.end(0)...-1)
+      if m = edited_content.match(/\n/,pos)
+        edited_content.slice!(0...m.end(0))
       end
     end
     def match_pawa_comment(pos)
+    
       rcmt = Regexp.escape(source_file.syntax.comment)
-      edited_content.match(/(.*)(#{rcmt}\s+)\[pawa\s*(?<lang>[^\]]*)\](?<op>.*)$/,pos)
+      edited_content.match(/\G(?<before>.*)(?<prefix>#{rcmt}\s+)\[pawa\s*(?<lang>[^\]]*)\](?<op>.*)$/,pos)
     end
     def match_pawa_continue(last_match,pos)
-      prefix = Regexp.escape(last_match[2])
-      edited_content.match(/\s{#{last_match[1].length}}#{prefix}\s+(?<op>.*)$/,pos)
+      prefix = Regexp.escape(last_match[:prefix])
+      edited_content.match(/\G\s{#{last_match[:before].length}}#{prefix}\s+(?<op>.*)$/,pos)
     end
     def parse_header_operations
+      ops = []
       while m = match_pawa_comment(pointer)
-        lang_ok = (!m[:lang] or m[:lang] == source_file.syntax.name)
-        if lang_ok and m[:op]
-          operations.push(Operations::Operation.new_from_string(m[:op]))
+        lang_ok = (m[:lang].empty? or m[:lang] == target_file.syntax.name)
+        if lang_ok and !m[:op].empty?
+          ops.push(Operations::Operation.new_from_string(m[:op]))
         end
-        cut_to_eol
+        cut_to_eol(pointer)
         while mc = match_pawa_continue(m,pointer)
-          if lang_ok and mc[:op]
-            operations.push(Operations::Operation.new_from_string(mc[:op]))
+          if lang_ok and !mc[:op].empty?
+            ops.push(Operations::Operation.new_from_string(mc[:op]))
           end
-          cut_to_eol
+          cut_to_eol(pointer)
         end
       end
+      @operations = ops + operations
     end
     def result
       parse_header_operations
