@@ -40,6 +40,7 @@ module Pawa
         operations.unshift(Operations::Operation.new_from_string(m[:op]).tap do |op|
           op.startPos = pointer
         end)
+        @reg_for_nb = nil
         edited_content.slice!(m.begin(:comment)...m.end(:comment))
       end
     end
