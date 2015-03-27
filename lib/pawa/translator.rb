@@ -19,7 +19,7 @@ module Pawa
       @operations ||= translation.operations.clone
     end
     def reg_next_operation(exclude=[])
-      return @reg_next_operation if @reg_next_operation and exclude.empty?
+      return @reg_next_operation if @reg_next_operation and exclude.empty? and @reg_for_nb == operations.length
       reg_strs = []
       operations.each_with_index do |op, index|
         if op.findable? and not exclude.include?(index)
@@ -29,10 +29,22 @@ module Pawa
       reg_strs.push '(?<eol>\n)'
       Regexp.new(reg_strs.join('|')).tap do |reg|
         @reg_next_operation = reg if exclude.empty?
+        @reg_for_nb = operations.length
       end
     end
     def edited_content
       @edited_content ||= source_file.content
+    end
+    def check_new_operation
+      if m = match_pawa_comment(pointer)
+        operations.unshift(Operations::Operation.new_from_string(m[:op]).tap do |op|
+          op.startPos = pointer
+        end)
+        edited_content.slice!(m.begin(:comment)...m.end(:comment))
+      end
+    end
+    def check_expired_operations
+      operations.reject!{ |op| op.expired?(self) }
     end
     def next_operation
       if edited_content.length > pointer
@@ -45,6 +57,8 @@ module Pawa
           matched_names.find do |name|
             op = nil
             if name == 'eol'
+              check_expired_operations
+              check_new_operation
               op = next_operation
               true
             else
@@ -67,13 +81,12 @@ module Pawa
     end
     def cut_to_eol(pos)
       if m = edited_content.match(/\n/,pos)
-        edited_content.slice!(0...m.end(0))
+        edited_content.slice!(pos...m.end(0))
       end
     end
     def match_pawa_comment(pos)
-    
       rcmt = Regexp.escape(source_file.syntax.comment)
-      edited_content.match(/\G(?<before>.*)(?<prefix>#{rcmt}\s+)\[pawa\s*(?<lang>[^\]]*)\](?<op>.*)$/,pos)
+      edited_content.match(/\G(?<before>.*)(?<comment>(?<prefix>#{rcmt}\s+)\[pawa\s*(?<lang>[^\]]*)\](?<op>.*))$/,pos)
     end
     def match_pawa_continue(last_match,pos)
       prefix = Regexp.escape(last_match[:prefix])

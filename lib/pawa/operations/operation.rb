@@ -7,7 +7,7 @@ module Pawa
       def initialize(str_opt)
         @str_opt = str_opt
       end
-      attr_accessor :str_opt
+      attr_accessor :str_opt, :startPos
       
       def params
         @params ||= parser.params
@@ -41,7 +41,11 @@ module Pawa
       def findable?
         false
       end
-      
+      def expired?(translator)
+        !startPos.nil? and
+          startPos < translator.pointer and 
+          translator.edited_content[startPos .. translator.pointer].match(/\n/)
+      end
       def instance_cls
         Instance
       end
